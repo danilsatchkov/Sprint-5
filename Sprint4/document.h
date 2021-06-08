@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <ostream>
 #include <set>
 #include <string>
 #include <vector>
@@ -21,7 +20,6 @@ struct Document {
 
 std::ostream& operator<<(std::ostream& out, const Document& document);
 
-
 enum class DocumentStatus {
     ACTUAL,
     IRRELEVANT,
@@ -30,7 +28,6 @@ enum class DocumentStatus {
 };
 
 void PrintDocument(const Document& document);
-
 void PrintMatchDocumentResult(int document_id, const std::vector<std::string>& words, DocumentStatus status);
 
 

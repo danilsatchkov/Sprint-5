@@ -1,10 +1,7 @@
 #pragma once
-#include <deque>
 #include <iostream>
-#include <ostream>
+#include <algorithm>
 #include <vector>
-#include "document.h"
-#include "search_server.h"
 
 template <typename Iterator>
 class IteratorRange {
@@ -46,7 +43,7 @@ class Paginator {
 public:
     Paginator(Iterator begin, Iterator end, size_t page_size) {
         for (size_t left = distance(begin, end); left > 0;) {
-            const size_t current_page_size = min(page_size, left);
+            const size_t current_page_size = std::min(page_size, left);
             const Iterator current_page_end = next(begin, current_page_size);
             pages_.push_back({ begin, current_page_end });
 
@@ -58,11 +55,9 @@ public:
     auto begin() const {
         return pages_.begin();
     }
-
     auto end() const {
         return pages_.end();
     }
-
     size_t size() const {
         return pages_.size();
     }

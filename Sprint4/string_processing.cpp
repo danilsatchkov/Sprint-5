@@ -1,6 +1,5 @@
 #include "string_processing.h"
 
-
 std::string ReadLine() {
     std::string s;
     std::getline(std::cin, s);
