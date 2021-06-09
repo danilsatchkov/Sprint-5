@@ -34,7 +34,9 @@ std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query,
     std::vector<Document> result = search_server_.FindTopDocuments(raw_query, document_predicate);
     if (requests_.size() == 1440u)
     {
-        if (requests_.back().empty_ == true) --num_empty_;
+        if (requests_.back().empty_ == true) {
+            --num_empty_;
+        }
         requests_.pop_back();
     }
     if (result.empty())
@@ -42,7 +44,9 @@ std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query,
         requests_.push_front(true);
         ++num_empty_;
     }
-    else requests_.push_front(false);
+    else {
+        requests_.push_front(false);
+    }
 
     return result;
 }

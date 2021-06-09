@@ -4,37 +4,13 @@ RequestQueue::RequestQueue(const SearchServer& search_server) : search_server_(s
 }
 
 std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query, DocumentStatus status) {
-    std::vector <Document> result = search_server_.FindTopDocuments(raw_query, status);
-    if (requests_.size() == 1440)
-    {
-        if (requests_.back().empty_ == true) --num_empty_;
-        requests_.pop_back();
-    }
-    if (result.empty())
-    {
-        requests_.push_front(true);
-        ++num_empty_;
-    }
-    else requests_.push_front(false);
-
-    return result;
+    return RequestQueue::AddFindRequest(raw_query, [status](int document_id, DocumentStatus document_status, int rating) {
+        return document_status == status;
+    });
 }
 
 std::vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query) {
-    std::vector<Document> result = search_server_.FindTopDocuments(raw_query);
-    if (requests_.size() == 1440)
-    {
-        if (requests_.back().empty_ == true) --num_empty_;
-        requests_.pop_back();
-    }
-    if (result.empty())
-    {
-        requests_.push_front(true);
-        ++num_empty_;
-    }
-    else requests_.push_front(false);
-
-    return result;
+    return RequestQueue::AddFindRequest(raw_query, DocumentStatus::ACTUAL);
 }
 
 int RequestQueue::GetNoResultRequests() const {
