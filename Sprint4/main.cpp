@@ -1,31 +1,36 @@
-#pragma once
-#include "paginator.h"
+п»ї#include "paginator.h"
 #include "search_server.h"
 #include "request_queue.h"
+#include "remove_duplicates.h"
 
 int main() {
-    SearchServer search_server(std::string("and in at"));
-    RequestQueue request_queue(search_server);
+    SearchServer search_server(std::string("and with"));
 
-    search_server.AddDocument(1, "curly cat curly tail", DocumentStatus::ACTUAL, { 7, 2, 7 });
-    search_server.AddDocument(2, "curly dog and fancy collar", DocumentStatus::ACTUAL, { 1, 2, 3 });
-    search_server.AddDocument(3, "big cat fancy collar ", DocumentStatus::ACTUAL, { 1, 2, 8 });
-    search_server.AddDocument(4, "big dog sparrow Eugene", DocumentStatus::ACTUAL, { 1, 3, 2 });
-    search_server.AddDocument(5, "big dog sparrow Vasiliy", DocumentStatus::ACTUAL, { 1, 1, 1 });
+    AddDocument(search_server, 1, "funny pet and nasty rat", DocumentStatus::ACTUAL, { 7, 2, 7 });
+    AddDocument(search_server, 2, "funny pet with curly hair", DocumentStatus::ACTUAL, { 1, 2 });
 
-    // 1439 запросов с нулевым результатом
-    for (int i = 0; i < 1439; ++i) {
-        request_queue.AddFindRequest("empty request");
-    }
-    // все еще 1439 запросов с нулевым результатом
-    request_queue.AddFindRequest("curly dog");
-    // новые сутки, первый запрос удален, 1438 запросов с нулевым результатом
-    request_queue.AddFindRequest("big collar");
-    // первый запрос удален, 1437 запросов с нулевым результатом
-    request_queue.AddFindRequest("sparrow");
-    std::cout << "Total empty requests: " << request_queue.GetNoResultRequests() <<std::endl;
-    std::string qur = std::string("curly");
-    const std::vector<Document>& document = search_server.FindTopDocuments(qur, [](int document_id, DocumentStatus status, int rating) { return document_id % 2 == 0; });
-   
-    return 0;
+    // РґСѓР±Р»РёРєР°С‚ РґРѕРєСѓРјРµРЅС‚Р° 2, Р±СѓРґРµС‚ СѓРґР°Р»С‘РЅ
+    AddDocument(search_server, 3, "funny pet with curly hair", DocumentStatus::ACTUAL, { 1, 2 });
+
+    // РѕС‚Р»РёС‡РёРµ С‚РѕР»СЊРєРѕ РІ СЃС‚РѕРї-СЃР»РѕРІР°С…, СЃС‡РёС‚Р°РµРј РґСѓР±Р»РёРєР°С‚РѕРј
+    AddDocument(search_server, 4, "funny pet and curly hair", DocumentStatus::ACTUAL, { 1, 2 });
+
+    // РјРЅРѕР¶РµСЃС‚РІРѕ СЃР»РѕРІ С‚Р°РєРѕРµ Р¶Рµ, СЃС‡РёС‚Р°РµРј РґСѓР±Р»РёРєР°С‚РѕРј РґРѕРєСѓРјРµРЅС‚Р° 1
+    AddDocument(search_server, 5, "funny funny pet and nasty nasty rat", DocumentStatus::ACTUAL, { 1, 2 });
+
+    // РґРѕР±Р°РІРёР»РёСЃСЊ РЅРѕРІС‹Рµ СЃР»РѕРІР°, РґСѓР±Р»РёРєР°С‚РѕРј РЅРµ СЏРІР»СЏРµС‚СЃСЏ
+    AddDocument(search_server, 6, "funny pet and not very nasty rat", DocumentStatus::ACTUAL, { 1, 2 });
+
+    // РјРЅРѕР¶РµСЃС‚РІРѕ СЃР»РѕРІ С‚Р°РєРѕРµ Р¶Рµ, РєР°Рє РІ id 6, РЅРµСЃРјРѕС‚СЂСЏ РЅР° РґСЂСѓРіРѕР№ РїРѕСЂСЏРґРѕРє, СЃС‡РёС‚Р°РµРј РґСѓР±Р»РёРєР°С‚РѕРј
+    AddDocument(search_server, 7, "very nasty rat and not very funny pet", DocumentStatus::ACTUAL, { 1, 2 });
+
+    // РµСЃС‚СЊ РЅРµ РІСЃРµ СЃР»РѕРІР°, РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґСѓР±Р»РёРєР°С‚РѕРј
+    AddDocument(search_server, 8, "pet with rat and rat and rat", DocumentStatus::ACTUAL, { 1, 2 });
+
+    // СЃР»РѕРІР° РёР· СЂР°Р·РЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ, РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґСѓР±Р»РёРєР°С‚РѕРј
+    AddDocument(search_server, 9, "nasty rat with curly hair", DocumentStatus::ACTUAL, { 1, 2 });
+
+    std::cout << "Before duplicates removed: " << search_server.GetDocumentCount() << std::endl;
+    RemoveDuplicates(search_server);
+    std::cout << "After duplicates removed: " << search_server.GetDocumentCount() << std::endl;
 }
