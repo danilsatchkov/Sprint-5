@@ -1,4 +1,3 @@
-#pragma once
 #include <algorithm>
 #include <cmath>
 #include <stdexcept>
@@ -18,10 +17,12 @@ void SearchServer::AddDocument(int document_id, const string& document, Document
     const double inv_word_count = 1.0 / words.size();
     for (const string& word : words) {
         doc_to_word_freqs_[document_id][word]+= inv_word_count;
+        word_to_document_freqs_[word][document_id] += inv_word_count;
         words_set.insert(word);
     }
     documents_.emplace(document_id, DocumentData{ ComputeAverageRating(ratings), status });
-    document_ids_.push_back(document_id);
+
+    document_ids_.insert(document_id);
     
     if (words_to_doc_.find(words_set) == words_to_doc_.end()|| document_id < words_to_doc_[words_set]) {
         words_to_doc_[words_set] = document_id;
@@ -42,11 +43,11 @@ int SearchServer::GetDocumentCount() const {
     return documents_.size();
 }
 
-vector<int>::const_iterator SearchServer::begin() const{
+set<int>::const_iterator SearchServer::begin() const{
     return SearchServer::document_ids_.begin();
 }
 
-vector<int>::const_iterator SearchServer::end() const {
+set<int>::const_iterator SearchServer::end() const {
     return SearchServer::document_ids_.end();
 }
 
@@ -60,9 +61,21 @@ const map<string, double>& SearchServer::GetWordFrequencies(int document_id) con
 };
 
 void SearchServer::RemoveDocument(int document_id) {
+    auto it = words_to_doc_.begin();
+    while (it != words_to_doc_.end())
+    {
+        if (it->second == document_id)
+        {
+            it = words_to_doc_.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
     doc_to_word_freqs_.erase(document_id);
     documents_.erase(document_id);
-    document_ids_.erase(std::remove(document_ids_.begin(), document_ids_.end(), document_id), document_ids_.end());
+    document_ids_.erase(document_id);
 }
 
 tuple<vector<string>, DocumentStatus> SearchServer::MatchDocument(const string& raw_query, int document_id) const {
@@ -163,14 +176,7 @@ SearchServer::Query SearchServer::ParseQuery(const string& text) const {
 
 // Existence required
 double SearchServer::ComputeWordInverseDocumentFreq(const string& word) const {
-    int numdocs = 0;
-
-    for (auto doc:SearchServer::doc_to_word_freqs_) {
-        if (doc.second.find(word) != doc.second.end()) {
-            numdocs += 1;
-        }
-    }
-    return log(GetDocumentCount() * 1.0 / numdocs);
+    return log(GetDocumentCount() * 1.0 / word_to_document_freqs_.at(word).size());
 }
 
 void AddDocument(SearchServer& search_server, int document_id, const std::string& document, DocumentStatus status,
@@ -200,10 +206,8 @@ void FindTopDocuments(const SearchServer& search_server, const std::string& raw_
 void MatchDocuments(const SearchServer& search_server, const std::string& query) {
     try {
         std::cout << "Matching documents to query: " << query << std::endl;
-        const int document_count = search_server.GetDocumentCount();
 
-        for (int index = 0; index < document_count; ++index) {
-            const int document_id = *(search_server.begin()+index);
+        for (int document_id:search_server) {
             const auto[words, status] = search_server.MatchDocument(query, document_id);
             PrintMatchDocumentResult(document_id, words, status);
         }

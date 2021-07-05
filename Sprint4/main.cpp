@@ -6,7 +6,7 @@
 int main() {
     SearchServer search_server(std::string("and with"));
 
-    AddDocument(search_server, 1, "funny pet and nasty rat", DocumentStatus::ACTUAL, { 7, 2, 7 });
+    AddDocument(search_server, 1, "funny pet and nasty rat", DocumentStatus::ACTUAL, { 7, 2, 7 });  
     AddDocument(search_server, 2, "funny pet with curly hair", DocumentStatus::ACTUAL, { 1, 2 });
 
     // дубликат документа 2, будет удалён
@@ -33,4 +33,5 @@ int main() {
     std::cout << "Before duplicates removed: " << search_server.GetDocumentCount() << std::endl;
     RemoveDuplicates(search_server);
     std::cout << "After duplicates removed: " << search_server.GetDocumentCount() << std::endl;
+    return 0;
 }
