@@ -13,9 +13,6 @@ const int kMaxResultDocumentCount = 5;
 
 class SearchServer {
 public:
-    std::map<std::set<std::string>, int> words_to_doc_;
-
-public:
     explicit SearchServer(const std::string& stop_words_text)
         : SearchServer(SplitIntoWords(stop_words_text)) {
     }
