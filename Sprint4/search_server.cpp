@@ -54,10 +54,13 @@ const map<string, double>& SearchServer::GetWordFrequencies(int document_id) con
     }
     
     return doc_to_word_freqs_.at(document_id);
-};
+}
 
 void SearchServer::RemoveDocument(int document_id) {
     if (document_ids_.find(document_id) != document_ids_.end()) {
+        for (auto word : doc_to_word_freqs_.at(document_id)) {
+            word_to_document_freqs_.erase(word.first);
+        }
         doc_to_word_freqs_.erase(document_id);
         documents_.erase(document_id);
         document_ids_.erase(document_id);
