@@ -56,5 +56,8 @@
     <ClInclude Include="remove_duplicates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="concurrent_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -13,25 +13,20 @@ int ReadLineWithNumber() {
     return result;
 }
 
-std::vector<std::string> SplitIntoWords(const std::string& text) {
-    std::vector<std::string> words;
-    std::string word;
-    for (const char character : text)
-    {
-        if (character == ' ') {
-            if (!word.empty()) {
-                words.push_back(word);
-                word.clear();
-            }
+std::vector<std::string_view> SplitIntoWords(std::string_view sv) {
+    std::vector<std::string_view> words;
+    size_t pos = 0;
+    while (true) {
+        auto space = sv.find(' ', pos);
+        words.push_back(sv.substr(0, space));
+
+        if (space == sv.npos) {
+            break;
         }
         else {
-            word += character;
+            sv.remove_prefix(space + 1);
         }
     }
-
-    if (!word.empty()) {
-        words.push_back(word);
-    }
-
+    
     return words;
 }

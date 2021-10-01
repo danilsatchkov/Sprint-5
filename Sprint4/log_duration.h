@@ -22,7 +22,7 @@ public:
 
         const auto end_time = Clock::now();
         const auto dur = end_time - start_time_;
-        std::cerr << id_ << ": " << duration_cast<milliseconds>(dur).count() << " ms" << std::endl;
+        std::cout << id_ << ": " << duration_cast<milliseconds>(dur).count() << " ms" << std::endl;
     }
 
 private:

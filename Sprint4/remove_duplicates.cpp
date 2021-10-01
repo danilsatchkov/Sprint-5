@@ -14,7 +14,7 @@ void RemoveDuplicates(SearchServer& search_server) {
     {
         std::set<std::string> word_set;
         for (auto words_freqs : search_server.GetWordFrequencies(document_id)) {
-            word_set.insert(words_freqs.first);
+            word_set.emplace(words_freqs.first);
         }
         if (words_to_doc.find(word_set) == words_to_doc.end()) {
             words_to_doc[word_set] = document_id;
