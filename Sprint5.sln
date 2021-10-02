@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1401
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sprint4", "Sprint4\Sprint4.vcxproj", "{23EF52E8-7555-4E12-AF01-F8FF2D1F3A52}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sprint5", "Sprint4\Sprint4.vcxproj", "{23EF52E8-7555-4E12-AF01-F8FF2D1F3A52}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sprint9", "Sprint9\Sprint9.vcxproj", "{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{23EF52E8-7555-4E12-AF01-F8FF2D1F3A52}.Release|x64.Build.0 = Release|x64
 		{23EF52E8-7555-4E12-AF01-F8FF2D1F3A52}.Release|x86.ActiveCfg = Release|Win32
 		{23EF52E8-7555-4E12-AF01-F8FF2D1F3A52}.Release|x86.Build.0 = Release|Win32
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Debug|x64.ActiveCfg = Debug|x64
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Debug|x64.Build.0 = Debug|x64
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Debug|x86.ActiveCfg = Debug|Win32
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Debug|x86.Build.0 = Debug|Win32
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Release|x64.ActiveCfg = Release|x64
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Release|x64.Build.0 = Release|x64
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Release|x86.ActiveCfg = Release|Win32
+		{A4D9AA9A-CADA-4D05-BF14-EAED2E1073C0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -39,10 +39,9 @@ public:
 
     int GetDocumentCount() const;
 
-    std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(std::string_view raw_query, int document_id) const;
-
     template<typename Execution>
-    std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(Execution&& policy,std::string_view raw_query, int document_id) const;
+    std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(Execution&& policy, std::string_view raw_query, int document_id) const;
+    std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(std::string_view raw_query, int document_id) const;
 
     std::set<int>::const_iterator begin() const;
     std::set<int>::const_iterator end() const;
@@ -50,20 +49,9 @@ public:
     const std::map<std::string_view, double> GetWordFrequencies(int document_id) const;
 
     void RemoveDocument(int document_id);
-
     template <typename Execution>
-    void RemoveDocument(Execution&& policy, int document_id) {
-        if (document_ids_.find(document_id) != document_ids_.end()) {
-            std::for_each(policy, word_to_document_freqs_.begin(), word_to_document_freqs_.end(), [document_id](auto& word) {
-                word.second.erase(document_id);
-
-                });
-
-            doc_to_word_freqs_ = maptovec_remove(policy, doc_to_word_freqs_, document_id);
-            documents_ = maptovec_remove(policy, documents_, document_id);
-            document_ids_.erase(document_id);
-        }
-    }
+    void RemoveDocument(Execution&& policy, int document_id);
+    
 private:
     struct DocumentData {
         int rating;
@@ -101,17 +89,8 @@ private:
     double ComputeWordInverseDocumentFreq(const std::string& word) const;
 
     template <typename K, typename V, typename Execution>
-    std::map<K, V> maptovec_remove(Execution&& policy, std::map<K, V>& input_map, int document_id) {
-        std::vector<std::pair<K, V>> output_vec(make_move_iterator(input_map.begin()), make_move_iterator(input_map.end()));
-
-        std::remove_if(policy, output_vec.begin(), output_vec.end(), [document_id](auto doc) {
-            return doc.first == document_id;
-            });
-
-        std::map<K, V> output_map(make_move_iterator(output_vec.begin()), make_move_iterator(output_vec.end()));
-        return output_map;
-    }
-
+    std::map<K, V> MaptovecRemove(Execution&& policy, std::map<K, V>& input_map, int document_id);
+    
     template <typename DocumentPredicate,typename Execution>
     std::vector<Document> FindAllDocuments(Execution&& policy, const Query& query, DocumentPredicate document_predicate) const;
 };
@@ -166,29 +145,38 @@ std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query,
 template <typename Execution>
 std::tuple<std::vector<std::string_view>, DocumentStatus> SearchServer::MatchDocument(Execution&& policy,std::string_view raw_query, int document_id) const {
     Query query = ParseQuery(raw_query);
-
     std::vector<std::string_view> matched_words;
-    for (const std::string& word : query.plus_words) {
+
+    for_each(query.plus_words.begin(), query.plus_words.end(), [&matched_words, this, document_id] 
+        (auto const& word) {
+
         auto it = doc_to_word_freqs_.at(document_id).find(word);
-        if (it == doc_to_word_freqs_.at(document_id).end()) {
-            continue;
-        }
-        else {
+        if (it != doc_to_word_freqs_.at(document_id).end()) {
             matched_words.push_back(it->first);
-        }
-    }
-    for (const std::string& word : query.minus_words) {
-        auto it = doc_to_word_freqs_.at(document_id).find(word);
-        if (it == doc_to_word_freqs_.at(document_id).end()) {
-            continue;
-        }
-        else {
-            matched_words.clear();
-            break;
-        }
-    }
+        }   
+        });
+
+    for_each(query.minus_words.begin(), query.minus_words.end(), [&matched_words, this, document_id]
+    (auto const& word) {
+            auto it = doc_to_word_freqs_.at(document_id).find(word);
+            if (it != doc_to_word_freqs_.at(document_id).end()) {
+                matched_words.clear();
+            }
+           });
 
     return { matched_words, documents_.at(document_id).status };
+}
+
+template <typename K, typename V, typename Execution>
+std::map<K, V> MaptovecRemove(Execution&& policy, std::map<K, V>& input_map, int document_id) {
+    std::vector<std::pair<K, V>> output_vec(make_move_iterator(input_map.begin()), make_move_iterator(input_map.end()));
+
+    std::remove_if(policy, output_vec.begin(), output_vec.end(), [document_id](auto doc) {
+        return doc.first == document_id;
+        });
+
+    std::map<K, V> output_map(make_move_iterator(output_vec.begin()), make_move_iterator(output_vec.end()));
+    return output_map;
 }
 
 template <typename DocumentPredicate,typename Execution>
@@ -228,6 +216,20 @@ std::vector<Document> SearchServer::FindAllDocuments(Execution&& policy,const Qu
         matched_documents.push_back({ document_id, relevance, documents_.at(document_id).rating });
     }
     return matched_documents;
+}
+
+template <typename Execution>
+void SearchServer::RemoveDocument(Execution&& policy, int document_id) {
+    if (document_ids_.find(document_id) != document_ids_.end()) {
+        std::for_each(policy, word_to_document_freqs_.begin(), word_to_document_freqs_.end(), [document_id](auto& word) {
+            word.second.erase(document_id);
+
+            });
+
+        doc_to_word_freqs_ = MaptovecRemove(policy, doc_to_word_freqs_, document_id);
+        documents_ = MaptovecRemove(policy, documents_, document_id);
+        document_ids_.erase(document_id);
+    }
 }
 void AddDocument(SearchServer& search_server, int document_id, std::string_view document, DocumentStatus status,
     const std::vector<int>& ratings);
