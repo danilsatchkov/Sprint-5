@@ -1,10 +1,9 @@
-﻿#include "search_server.h"
+﻿#include <random>
+
+#include "search_server.h"
 #include "log_duration.h"
-#include <execution>
-#include <iostream>
-#include <random>
-#include <string>
-#include <vector>
+#include "process_queries.h"
+#include "read_input_functions.h"
 
 using namespace std;
 

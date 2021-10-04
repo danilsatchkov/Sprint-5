@@ -1,24 +1,11 @@
 #pragma once
-#include <algorithm>
-#include <cstdlib>
-#include <cmath>
-#include <deque>
-#include <future>
 #include <map>
-#include <numeric>
-#include <random>
-#include <string>
 #include <vector>
-#include <utility>
-
-#include "log_duration.h"
-
-using namespace std::string_literals;
 
 template <typename Key, typename Value>
 class ConcurrentMap {
 public:
-    int num_maps_;
+    int num_maps;
     static_assert(std::is_integral_v<Key>, "ConcurrentMap supports only integer keys");
 
     struct Access {
@@ -31,17 +18,17 @@ public:
             : guard(mut), ref_to_value(map[key])  {}
     };
 
-        explicit ConcurrentMap(size_t bucket_count) :num_maps_(bucket_count), buckets_(bucket_count) {
+        explicit ConcurrentMap(size_t bucket_count) :num_maps(bucket_count), buckets_(bucket_count) {
         }
 
         Access operator[](const Key& key) {
-            int mapnum = static_cast<int>(static_cast<uint64_t>(key) % num_maps_);
+            int mapnum = static_cast<int>(static_cast<uint64_t>(key) % num_maps);
 
             return  Access(key, buckets_[mapnum].map, buckets_[mapnum].mutex);
         }
 
         void Erase(const Key& key) {
-            int mapnum = static_cast<int>(static_cast<uint64_t>(key) % num_maps_);
+            int mapnum = static_cast<int>(static_cast<uint64_t>(key) % num_maps);
             std::lock_guard<std::mutex> guard(buckets_[mapnum].mutex);
             buckets_[mapnum].map.erase(key);
         }

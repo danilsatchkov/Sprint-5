@@ -1,7 +1,6 @@
 #pragma once
 #include <deque>
 #include <iostream>
-#include <ostream>
 #include <string>
 #include <vector>
 #include "document.h"
